@@ -1,6 +1,12 @@
 <template>
   <div id="app">
     <div id="canvas" class="full-height"></div>
+   <!--  meta data -->
+    <div class="metadata">
+      <br/>
+      <p><strong>Author:</strong> {{ metadata.author }}</p>
+      <p><strong>Date:</strong> {{ metadata.date }}</p>
+    </div>
     <!-- Buttons for actions -->
   </div>
   <div class="button-row">
@@ -35,8 +41,11 @@ export default {
   data() {
     return {
       dmnModeler: null,
-      diagramUrl:
-        "./EmptyDiagram.dmn",
+      metadata: {
+        author: "Wahyu Hidayat",
+        date: new Date().toLocaleDateString(),
+      },      
+      diagramUrl: "./EmptyDiagram.dmn",
       /* 
         //this is for testing:  playwright
         diagramUrl: new URL('./EmptyDiagram.dmn', import.meta.url).href, */
@@ -102,20 +111,26 @@ export default {
         });
     },
     saveAsJson() {
-      this.dmnModeler
-        .saveXML({ format: true })
-        .then((xml) => {
-          const jsonBlob = new Blob([JSON.stringify({ xml: xml })], {
-            type: "application/json",
-          });
-          const url = URL.createObjectURL(jsonBlob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = "diagram.json";
-          link.click();
-          URL.revokeObjectURL(url);
-        })
-        .catch((err) => console.error("Could not save DMN diagram", err));
+      // Get the current definitions from the DMN modeler
+      const definitions = this.dmnModeler.getDefinitions();
+
+
+      // Combine metadata and definitions
+      const data = {
+        metadata: this.metadata,
+        definitions: definitions,
+      };
+
+      // Create a Blob from the JSON data
+      const jsonBlob = new Blob([JSON.stringify(data, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(jsonBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "diagram.json";
+      link.click();
+      URL.revokeObjectURL(url);
     },
     loadDmnFile() {
       console.log("Load DMN button clicked");
