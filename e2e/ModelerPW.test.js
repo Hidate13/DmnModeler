@@ -47,7 +47,7 @@ test.describe('DMN Modeler Component', () => {
         }
       }
 
-      
+
     });
   
     // Ensure DMN Modeler has a default or loaded diagram
@@ -80,11 +80,12 @@ test('should save diagram as JSON', async ({ page }) => {
     page.click('#save-json-button') // Click the button to start the download
   ]);
 
+  const filePathSaveAs = path.join(process.cwd(), 'MyDiagram.json');
   // Save the downloaded file
-  await download.saveAs(filePath);
+  await download.saveAs(filePathSaveAs);
 
   // Read and parse the file content
-  const content = fs.readFileSync(filePath, 'utf-8');
+  const content = fs.readFileSync(filePathSaveAs, 'utf-8');
   const jsonContent = JSON.parse(content);
 
   const currentDate = new Date().toLocaleDateString();

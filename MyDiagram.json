@@ -1,0 +1,27 @@
+{
+  "metadata": {
+    "author": "Wahyu Hidayat",
+    "date": "8/14/2024"
+  },
+  "definitions": {
+    "$type": "dmn:Definitions",
+    "id": "new",
+    "name": "new",
+    "namespace": "http://camunda.org/schema/1.0/dmn",
+    "dmnDI": {
+      "$type": "dmndi:DMNDI",
+      "diagrams": [
+        {
+          "$type": "dmndi:DMNDiagram",
+          "id": "DMNDiagram_1ejukud"
+        }
+      ]
+    },
+    "di": {
+      "$type": "dmndi:DMNDiagram",
+      "id": "DMNDiagram_1ejukud"
+    },
+    "drgElement": [],
+    "artifact": []
+  }
+}
