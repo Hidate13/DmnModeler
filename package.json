@@ -12,9 +12,11 @@
   },
   "dependencies": {
     "dmn-js": "^16.6.2",
+    "fast-xml-parser": "^4.4.1",
     "jquery": "^3.7.1",
     "vue": "^3.4.29",
-    "vue-router": "^4.3.3"
+    "vue-router": "^4.3.3",
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "@playwright/test": "^1.46.0",

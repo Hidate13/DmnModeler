@@ -4,9 +4,9 @@
     <!-- Buttons for actions -->
   </div>
   <div class="button-row">
-    <button hidden id="save-button" @click="exportDiagram">Print to Console</button>
+    <button id="save-button" @click="exportDiagram">Print to Console</button>
     <button id="save-json-button" @click="saveAsJson">Save as JSON</button>
-    <button @click="loadDmnFile">Load DMN</button>
+    <button id="load-dmn-button" @click="loadDmnFile">Load DMN</button>
     <input
       type="file"
       ref="fileInput"
@@ -27,6 +27,8 @@ import "dmn-js/dist/assets/dmn-js-decision-table.css";
 import "dmn-js/dist/assets/dmn-js-decision-table-controls.css";
 import "dmn-js/dist/assets/dmn-js-literal-expression.css";
 import "dmn-js/dist/assets/dmn-font/css/dmn.css";
+import xml2js from "xml2js";
+import { XMLParser } from "fast-xml-parser";
 
 export default {
   name: "DmnModeler",
@@ -35,8 +37,8 @@ export default {
       dmnModeler: null,
       diagramUrl:
         "./EmptyDiagram.dmn",
-        /* 
-        this is for testing:  playwright
+      /* 
+        //this is for testing:  playwright
         diagramUrl: new URL('./EmptyDiagram.dmn', import.meta.url).href, */
     };
   },
@@ -62,13 +64,16 @@ export default {
         .catch((error) => console.error("Error loading DMN diagram:", error));
     },
     exportDiagram() {
-      this.dmnModeler.saveXML({ format: true }, (err, xml) => {
-        if (err) {
-          return console.error("Could not save DMN diagram", err);
-        }
-        alert("Diagram exported. Check the developer tools!");
-        console.log("DIAGRAM", xml);
-      });
+      this.dmnModeler
+        .saveXML({ format: true })
+        .then((result) => {
+          const xml = result.xml;
+          alert("Diagram exported. Check the developer tools!");
+          console.log("DIAGRAM", xml);
+        })
+        .catch((err) => {
+          console.error("Could not save DMN diagram", err);
+        });
     },
     openDiagram(dmnXML) {
       console.log("Opening diagram...");
@@ -126,7 +131,7 @@ export default {
         const reader = new FileReader();
         reader.onload = (e) => {
           const dmnXML = e.target.result;
-          console.log("Loaded DMN XML:", dmnXML); // Verify if the XML is correct
+          // console.log("Loaded DMN XML:", dmnXML); // Verify if the XML is correct
           this.openDiagram(dmnXML);
         };
         reader.readAsText(file);
