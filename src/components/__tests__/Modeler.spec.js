@@ -53,13 +53,32 @@ describe("DmnModeler.vue", () => {
   });
 
   it("Print to Console on button click", async () => {
+    // Find the button element with the id 'save-button'
     const printButton = wrapper.find('button#save-button');
+    
+    // Assert that the button has the expected text "Print to Console"
     expect(printButton.text()).toBe("Print to Console");
-
+  
+    // Mock the dmnModeler and its saveXML method
+    const saveXMLMock = vi.fn().mockResolvedValue({ xml: '<xml>mock XML</xml>' });
+    wrapper.vm.dmnModeler = { saveXML: saveXMLMock };
+  
+    // Mock the console.log function to intercept and verify console output
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+  
+    // Trigger the button click
     await printButton.trigger("click");
-
-    // Add additional assertions to verify the expected outcome after button click
+  
+    // Verify that saveXML was called
+    expect(saveXMLMock).toHaveBeenCalled();
+  
+    // Check if the correct console log occurred
+    expect(consoleSpy).toHaveBeenCalledWith('DIAGRAM', '<xml>mock XML</xml>');
+  
+    // Restore console.log to its original implementation
+    consoleSpy.mockRestore();
   });
+  
 
   it("handles file selection", async () => {
     const fileInput = wrapper.find('input[type="file"]');
@@ -87,14 +106,25 @@ describe("DmnModeler.vue", () => {
   
 
   it("exports the diagram to console on button click", async () => {
-    const exportButton = wrapper.find('button#save-button');
+    const wrapper = mount(DmnModeler);
+
+    // Mock the saveXML method
+    const mockXML = '<xml>mock XML</xml>';
+    wrapper.vm.dmnModeler.saveXML = vi.fn(() => Promise.resolve({ xml: mockXML }));
+
+    // Spy on console.log
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
+    // Find and click the button
+    const exportButton = wrapper.find('button#save-button');
     await exportButton.trigger('click');
 
-    expect(consoleSpy).toHaveBeenCalledWith('DIAGRAM', '<xml>mock XML</xml>');
+    // Check if console.log was called with the correct arguments
+    expect(consoleSpy).toHaveBeenCalledWith('DIAGRAM', mockXML);
+
+    // Restore console.log
     consoleSpy.mockRestore();
-  });
+  });;
 
   it("saves the diagram as JSON on button click", async () => {
     // Find the button

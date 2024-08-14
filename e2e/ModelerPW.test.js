@@ -61,27 +61,36 @@ test.describe('DMN Modeler Component', () => {
 // Import fs at the top of your test file
 
 test('should save diagram as JSON', async ({ page }) => {
-  await page.goto('http://localhost:5173');
+  // Navigate to your page or perform setup actions
+  await page.goto('http://localhost:5173'); // Adjust URL as necessary
 
-  // Click the save as JSON button
+  // Trigger the save as JSON action
   await page.click('#save-json-button');
 
-  // Check for file download or related UI changes
+  // Wait for the download and save it to a temporary location
   const [download] = await Promise.all([
-    page.waitForEvent('download'),
-    page.click('#save-json-button'),
+    page.waitForEvent('download'), // Wait for the download event
+    page.click('#save-json-button') // Click the button to start the download
   ]);
 
-  // Check if the downloaded file is in JSON format
-  expect(download.suggestedFilename()).toBe('diagram.json');
+  // Save the downloaded file
+  await download.saveAs(filePath);
 
-  // Read the downloaded file content
-  const filePath = await download.path();
-  const content = fs.readFileSync(filePath, 'utf8');
+  // Read and parse the file content
+  const content = fs.readFileSync(filePath, 'utf-8');
+  const jsonContent = JSON.parse(content);
 
-  // Check the content of the file
-  expect(content).toContain('xml'); 
+  const currentDate = new Date().toLocaleDateString();
+  // Perform assertions on the JSON content
+  expect(jsonContent.metadata).toEqual({
+    author: 'Wahyu Hidayat',
+     date: currentDate
+  });
+
+  // Check that definitions contain expected data
+  expect(jsonContent.definitions).toHaveProperty('id', 'new');
 });
+
 
 
 test('should handle file select and read DMN XML', async ({ page }) => {

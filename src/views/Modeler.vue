@@ -1,9 +1,9 @@
 <template>
   <div id="app">
     <div id="canvas" class="full-height"></div>
-   <!--  meta data -->
+    <!--  meta data -->
     <div class="metadata">
-      <br/>
+      <br />
       <p><strong>Author:</strong> {{ metadata.author }}</p>
       <p><strong>Date:</strong> {{ metadata.date }}</p>
     </div>
@@ -44,7 +44,7 @@ export default {
       metadata: {
         author: "Wahyu Hidayat",
         date: new Date().toLocaleDateString(),
-      },      
+      },
       diagramUrl: "./EmptyDiagram.dmn",
       /* 
         //this is for testing:  playwright
@@ -73,6 +73,10 @@ export default {
         .catch((error) => console.error("Error loading DMN diagram:", error));
     },
     exportDiagram() {
+      if (!this.dmnModeler) {
+        console.error("DMN Modeler is not initialized");
+        return;
+      }
       this.dmnModeler
         .saveXML({ format: true })
         .then((result) => {
@@ -113,7 +117,6 @@ export default {
     saveAsJson() {
       // Get the current definitions from the DMN modeler
       const definitions = this.dmnModeler.getDefinitions();
-
 
       // Combine metadata and definitions
       const data = {
