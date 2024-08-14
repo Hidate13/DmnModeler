@@ -38,9 +38,16 @@ test.describe('DMN Modeler Component', () => {
     });
   
     // Capture network requests for debugging
-    page.on('response', (response) => {
-      // console.log('Response URL:', response.url());
-      response.body().then((body) => console.log('Response Body:', body));
+    page.on('response', async (response) => {
+      const status = response.status();
+      if (status < 300 || status >= 400) { // Ignore redirect responses
+        const body = await response.body().catch(() => null);
+        if (body) {
+          console.log('Response Body:', body.toString());
+        }
+      }
+
+      
     });
   
     // Ensure DMN Modeler has a default or loaded diagram
