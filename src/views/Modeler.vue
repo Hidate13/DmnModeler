@@ -10,23 +10,30 @@
     <!-- Buttons for actions -->
   </div>
   <div class="button-row">
-    <button id="save-button" @click="exportDiagram">Print to Console</button>
-    <button id="save-json-button" @click="saveAsJson">Save as JSON</button>
-    <button id="load-dmn-button" @click="loadDmnFile">Load DMN</button>
-    <button id="reset-diagram-button" @click="resetDiagram">
-      Reset Diagram
-    </button>
-    <button id="export-svg-button" @click="exportToSVG">Export as SVG</button>
-    <button id="export-jpeg-button" @click="exportToJPEG">
-      Export to JPEG
-    </button>
+    <div id="main-button">
+      <button id="save-button" @click="exportDiagram">Print to Console</button>
+      <button id="save-json-button" @click="saveAsJson">Save as JSON</button>
+      <button id="load-dmn-button" @click="loadDmnFile">Load DMN</button>
+      <button id="reset-diagram-button" @click="resetDiagram">
+        Reset Diagram
+      </button>
+    </div>
     <input
-      type="file"
-      ref="fileInput"
-      style="display: none"
-      @change="handleFileSelect"
-      accept=".dmn"
+    type="file"
+    ref="fileInput"
+    style="display: none"
+    @change="handleFileSelect"
+    accept=".dmn"
     />
+  </div>
+  <div class="button-row">
+    <div id="export-button">
+      <button id="export-svg-button" @click="exportToSVG">Export as SVG</button>
+      <button id="export-jpeg-button" @click="exportToJPEG">
+        Export to JPEG
+      </button>
+      <button id="export-png-button" @click="exportToPNG">Export to PNG</button>
+    </div>
   </div>
 </template>
 
@@ -62,6 +69,36 @@ export default {
     this.loadExternalDiagram();
   },
   methods: {
+    exportToPNG() {
+      const canvas = document.getElementById("canvas");
+
+      if (!canvas) {
+        console.error("Canvas element not found.");
+        return;
+      }
+
+      // Temporarily hide elements with specific classes
+      const elementsToHide = document.querySelectorAll('.djs-palette.open, .dmn-definitions');
+      elementsToHide.forEach(el => el.style.visibility = 'hidden');
+
+      domtoimage
+        .toPng(canvas)
+        .then(function (dataUrl) {
+          const link = document.createElement("a");
+          link.href = dataUrl;
+          link.download = "diagram.png";
+          link.click();
+
+          // Restore the hidden elements
+          elementsToHide.forEach(el => el.style.visibility = '');
+        })
+        .catch(function (error) {
+          console.error("Error exporting to PNG:", error);
+
+          // Restore the hidden elements in case of error
+          elementsToHide.forEach(el => el.style.visibility = '');
+        });
+    },
     exportToJPEG() {
       const canvas = document.getElementById("canvas");
 
