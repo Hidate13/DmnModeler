@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div id="canvas" class="full-height"></div>
+    <div ref="dmnContainer" id="canvas" class="full-height"></div>
     <!--  meta data -->
     <div class="metadata">
       <br />
@@ -13,6 +13,13 @@
     <button id="save-button" @click="exportDiagram">Print to Console</button>
     <button id="save-json-button" @click="saveAsJson">Save as JSON</button>
     <button id="load-dmn-button" @click="loadDmnFile">Load DMN</button>
+    <button id="reset-diagram-button" @click="resetDiagram">
+      Reset Diagram
+    </button>
+    <button id="export-svg-button" @click="exportToSVG">Export as SVG</button>
+    <button id="export-jpeg-button" @click="exportToJPEG">
+      Export to JPEG
+    </button>
     <input
       type="file"
       ref="fileInput"
@@ -33,8 +40,7 @@ import "dmn-js/dist/assets/dmn-js-decision-table.css";
 import "dmn-js/dist/assets/dmn-js-decision-table-controls.css";
 import "dmn-js/dist/assets/dmn-js-literal-expression.css";
 import "dmn-js/dist/assets/dmn-font/css/dmn.css";
-import xml2js from "xml2js";
-import { XMLParser } from "fast-xml-parser";
+import domtoimage from "dom-to-image";
 
 export default {
   name: "DmnModeler",
@@ -56,6 +62,85 @@ export default {
     this.loadExternalDiagram();
   },
   methods: {
+    exportToJPEG() {
+      const canvas = document.getElementById("canvas");
+
+      if (!canvas) {
+        console.error("Canvas element not found.");
+        return;
+      }
+
+      // Temporarily hide elements with specific classes
+      const elementsToHide = document.querySelectorAll(
+        ".djs-palette.open, .dmn-definitions"
+      );
+      elementsToHide.forEach((el) => (el.style.visibility = "hidden"));
+
+      domtoimage
+        .toJpeg(canvas)
+        .then(function (dataUrl) {
+          const link = document.createElement("a");
+          link.href = dataUrl;
+          link.download = "diagram.jpg";
+          link.click();
+
+          // Restore the hidden elements
+          elementsToHide.forEach((el) => (el.style.visibility = ""));
+        })
+        .catch(function (error) {
+          console.error("Error exporting to JPEG:", error);
+
+          // Restore the hidden elements in case of error
+          elementsToHide.forEach((el) => (el.style.visibility = ""));
+        });
+    },
+    exportToSVG() {
+      const canvas = document.getElementById("canvas");
+
+      if (!canvas) {
+        console.error("Canvas element not found.");
+        return;
+      }
+
+      // Temporarily hide elements with specific classes
+      const elementsToHide = document.querySelectorAll(
+        ".djs-palette.open, .dmn-definitions"
+      );
+      elementsToHide.forEach((el) => (el.style.display = "none"));
+
+      // Convert canvas to SVG
+      domtoimage
+        .toSvg(canvas)
+        .then(function (dataUrl) {
+          // Create a link element to download the SVG
+          const link = document.createElement("a");
+          link.href = dataUrl;
+          link.download = "diagram.svg";
+          link.click();
+
+          // Restore the hidden elements
+          elementsToHide.forEach((el) => (el.style.display = ""));
+        })
+        .catch(function (error) {
+          console.error("Error exporting to SVG:", error);
+
+          // Restore the hidden elements in case of error
+          elementsToHide.forEach((el) => (el.style.display = ""));
+        });
+    },
+    async resetDiagram() {
+      try {
+        const response = await fetch(this.diagramUrl);
+        if (!response.ok) {
+          throw new Error("Failed to load the default diagram.");
+        }
+        const dmnXML = await response.text();
+        await this.dmnModeler.importXML(dmnXML);
+        console.log("Diagram has been reset to default.");
+      } catch (error) {
+        console.error("Error resetting diagram:", error);
+      }
+    },
     initializeDmnModeler() {
       this.dmnModeler = new DmnJS({
         container: "#canvas",
