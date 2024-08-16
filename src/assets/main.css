@@ -23,12 +23,24 @@ a,
   }
 }
 
+
+.metadata {
+  position: absolute;
+}
+@media (max-width: 1204px ){
+  .metadata{
+    margin: 0px 40%;
+    text-align: center;
+    position: relative;
+  }
+}
+
+
 @media (min-width: 1024px) {
   body {
     display: flex;
     place-items: center;
   }
-
   /* #app {
     /* display: grid;
     grid-template-columns: 1fr 1fr; */

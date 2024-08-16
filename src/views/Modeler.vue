@@ -284,9 +284,7 @@ export default {
 </script>
 
 <style scoped>
-.metadata{
-  position: absolute;
-}
+
 .app {
   display: flex;
   justify-content: center;
@@ -322,4 +320,7 @@ button {
 button:hover {
   background-color: #0056b3;
 }
+
+
+
 </style>
