@@ -14,25 +14,23 @@
       <button id="save-button" @click="exportDiagram">Print to Console</button>
       <button id="save-json-button" @click="saveAsJson">Save as JSON</button>
       <button id="load-dmn-button" @click="loadDmnFile">Load DMN</button>
-      <button id="reset-diagram-button" @click="resetDiagram">
-        Reset Diagram
-      </button>
+      <button id="reset-diagram-button" @click="resetDiagram">Reset</button>
     </div>
     <input
-    type="file"
-    ref="fileInput"
-    style="display: none"
-    @change="handleFileSelect"
-    accept=".dmn"
+      type="file"
+      ref="fileInput"
+      style="display: none"
+      @change="handleFileSelect"
+      accept=".dmn"
     />
   </div>
   <div class="button-row">
     <div id="export-button">
-      <button id="export-svg-button" @click="exportToSVG">Export as SVG</button>
-      <button id="export-jpeg-button" @click="exportToJPEG">
+      <button data-testid="export-svg-button" id="export-svg-button" @click="exportToSVG">Export to SVG</button>
+      <button data-testid="export-jpeg-button" id="export-jpeg-button" @click="exportToJPEG">
         Export to JPEG
       </button>
-      <button id="export-png-button" @click="exportToPNG">Export to PNG</button>
+      <button data-testid="export-png-button" id="export-png-button" @click="exportToPNG">Export to PNG</button>
     </div>
   </div>
 </template>
@@ -58,11 +56,11 @@ export default {
         author: "Wahyu Hidayat",
         date: new Date().toLocaleDateString(),
       },
-      diagramUrl: "./EmptyDiagram.dmn",
+      // diagramUrl: "/EmptyDiagram.dmn",
       /* 
-        //this is for testing:  playwright
-        diagramUrl: new URL('./EmptyDiagram.dmn', import.meta.url).href, */
-    };
+        //this is for testing:  playwright*/
+        diagramUrl: new URL('/EmptyDiagram.dmn', import.meta.url).href, 
+      };
   },
   mounted() {
     this.initializeDmnModeler();
@@ -78,8 +76,10 @@ export default {
       }
 
       // Temporarily hide elements with specific classes
-      const elementsToHide = document.querySelectorAll('.djs-palette.open, .dmn-definitions');
-      elementsToHide.forEach(el => el.style.visibility = 'hidden');
+      const elementsToHide = document.querySelectorAll(
+        ".djs-palette.open, .dmn-definitions"
+      );
+      elementsToHide.forEach((el) => (el.style.visibility = "hidden"));
 
       domtoimage
         .toPng(canvas)
@@ -90,13 +90,13 @@ export default {
           link.click();
 
           // Restore the hidden elements
-          elementsToHide.forEach(el => el.style.visibility = '');
+          elementsToHide.forEach((el) => (el.style.visibility = ""));
         })
         .catch(function (error) {
           console.error("Error exporting to PNG:", error);
 
           // Restore the hidden elements in case of error
-          elementsToHide.forEach(el => el.style.visibility = '');
+          elementsToHide.forEach((el) => (el.style.visibility = ""));
         });
     },
     exportToJPEG() {
@@ -113,6 +113,10 @@ export default {
       );
       elementsToHide.forEach((el) => (el.style.visibility = "hidden"));
 
+      // Set a white background for the canvas
+      const originalBackgroundColor = canvas.style.backgroundColor;
+      canvas.style.backgroundColor = "white";
+
       domtoimage
         .toJpeg(canvas)
         .then(function (dataUrl) {
@@ -121,14 +125,16 @@ export default {
           link.download = "diagram.jpg";
           link.click();
 
-          // Restore the hidden elements
+          // Restore the hidden elements and original background color
           elementsToHide.forEach((el) => (el.style.visibility = ""));
+          canvas.style.backgroundColor = originalBackgroundColor;
         })
         .catch(function (error) {
           console.error("Error exporting to JPEG:", error);
 
-          // Restore the hidden elements in case of error
+          // Restore the hidden elements and original background color in case of error
           elementsToHide.forEach((el) => (el.style.visibility = ""));
+          canvas.style.backgroundColor = originalBackgroundColor;
         });
     },
     exportToSVG() {
@@ -153,9 +159,9 @@ export default {
           const link = document.createElement("a");
           link.href = dataUrl;
           link.download = "diagram.svg";
-      document.body.appendChild(link); // Append link to body
-      link.click();
-      document.body.removeChild(link); 
+          document.body.appendChild(link); // Append link to body
+          link.click();
+          document.body.removeChild(link);
 
           // Restore the hidden elements
           elementsToHide.forEach((el) => (el.style.display = ""));
@@ -167,18 +173,16 @@ export default {
           elementsToHide.forEach((el) => (el.style.display = ""));
         });
     },
-    async resetDiagram() {
-      try {
-        const response = await fetch(this.diagramUrl);
-        if (!response.ok) {
-          throw new Error("Failed to load the default diagram.");
-        }
-        const dmnXML = await response.text();
-        await this.dmnModeler.importXML(dmnXML);
-        console.log("Diagram has been reset to default.");
-      } catch (error) {
-        console.error("Error resetting diagram:", error);
-      }
+    resetDiagram() {
+      if (!this.dmnModeler) return;
+      fetch(this.diagramUrl)
+        .then((response) => response.text())
+        .then((dmnXML) => {
+          if (dmnXML) {
+            return this.dmnModeler.importXML(dmnXML);
+          }
+        })
+        .catch((error) => console.error("Error resetting diagram:", error));
     },
     initializeDmnModeler() {
       this.dmnModeler = new DmnJS({
@@ -284,7 +288,6 @@ export default {
 </script>
 
 <style scoped>
-
 .app {
   display: flex;
   justify-content: center;
@@ -321,6 +324,7 @@ button:hover {
   background-color: #0056b3;
 }
 
-
-
+#reset-diagram-button {
+  background-color: red;
+}
 </style>
