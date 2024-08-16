@@ -153,7 +153,9 @@ export default {
           const link = document.createElement("a");
           link.href = dataUrl;
           link.download = "diagram.svg";
-          link.click();
+      document.body.appendChild(link); // Append link to body
+      link.click();
+      document.body.removeChild(link); 
 
           // Restore the hidden elements
           elementsToHide.forEach((el) => (el.style.display = ""));
@@ -282,6 +284,9 @@ export default {
 </script>
 
 <style scoped>
+.metadata{
+  position: absolute;
+}
 .app {
   display: flex;
   justify-content: center;
@@ -289,7 +294,7 @@ export default {
 }
 
 #canvas {
-  height: 87vh; /* Set viewport height */
+  height: 65vh; /* Set viewport height */
   width: 100%;
   border-style: inset;
 }
@@ -301,7 +306,7 @@ export default {
 .button-row {
   display: flex;
   justify-content: center;
-  margin-bottom: 40px;
+  margin-bottom: 1rem;
 }
 
 button {
