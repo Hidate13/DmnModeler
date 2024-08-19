@@ -15,7 +15,7 @@ dist
 dist-ssr
 coverage
 *.local
-
+MyDiagram - Copy.dmn
 
 /cypress/videos/
 /cypress/screenshots/
