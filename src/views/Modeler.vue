@@ -48,7 +48,7 @@ import "dmn-js/dist/assets/dmn-font/css/dmn.css";
 import domtoimage from "dom-to-image";
 
 export default {
-  name: "DmnModeler",
+  name: "Modeler",
   data() {
     return {
       dmnModeler: null,
